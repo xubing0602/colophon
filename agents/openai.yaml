@@ -1,0 +1,4 @@
+interface:
+  display_name: "钤记"
+  short_description: "Photographs joined to paper, sealed and captioned"
+  default_prompt: "Use $colophon on the photos in source/. Read captions from manifest/metadata.csv and save results to output/."
