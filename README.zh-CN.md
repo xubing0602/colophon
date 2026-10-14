@@ -66,7 +66,8 @@ mkdir -p ~/.claude/skills && ln -s "$PWD/colophon" ~/.claude/skills/colophon
 ### 用哪个智能体
 
 - **Codex** 自己就能画印章，不用额外设置。
-- **Claude Code** 本身不能生成图片。除了画印章这一步，其余都是普通的 Python，照常运行。画印章有两种办法：
+- **Claude Code** 本身不能生成图片。除了画印章这一步，其余都是普通的 Python，照常运行。画印章有三种办法：
+  - **提供一个 OpenAI API key。** 把 `.env.example` 复制成 `.env` 并填入 key，Claude 就会用 `scripts/generate_seal.py` 调用 OpenAI 的图像接口画每一枚印章（每枚几美分）。这个脚本是新加的，还没有在真实接口上跑过；遇到问题欢迎提 issue。
   - **给 Claude Code 接一个图像生成的 MCP 服务**，之后用法和 Codex 一样。
   - **自己生成印章。** Claude 把每张照片写好的提示词存到 `seals/prompts/`，你把它们逐个粘贴到 ChatGPT、Codex 或任何图像工具里，结果存成 `seals/<照片名>_seal.png`，Claude 再完成合成和检查。
 

@@ -64,7 +64,8 @@ Use colophon on the photos in source/.
 ### Which agent
 
 - **Codex** draws the seals itself. Nothing else to set up.
-- **Claude Code** cannot generate images on its own. Everything except drawing the seal is plain Python and runs the same, so you have two ways to fill that one step:
+- **Claude Code** cannot generate images on its own. Everything except drawing the seal is plain Python and runs the same, so you have three ways to fill that one step:
+  - **Give it an OpenAI API key.** Copy `.env.example` to `.env` and paste the key; Claude then draws each seal with `scripts/generate_seal.py`, which calls OpenAI's image API (a few US cents per seal). This script is new and has not yet been run against the live API; please open an issue if it misbehaves.
   - **Connect an image-generation MCP server** to Claude Code. Then it works as in Codex.
   - **Draw the seals yourself.** Claude writes one finished prompt per photo to `seals/prompts/`. Paste each into ChatGPT, Codex or any image tool, save the result as `seals/<photo>_seal.png`, and Claude composes and verifies the batch.
 
@@ -137,8 +138,9 @@ python inspect_source.py --help
 The skill calls no agent-specific tool. Where it says to generate the seal image,
 the agent uses whatever image generation it has — that step is described in plain
 language, not as a particular tool call. Codex has image generation built in.
-Claude Code does not: connect an image-generation MCP server, or let Claude write
-the prompts to `seals/prompts/` and generate the seals yourself (see
+Claude Code does not: give it an OpenAI API key for `generate_seal.py`, connect
+an image-generation MCP server, or let Claude write the prompts to
+`seals/prompts/` and generate the seals yourself (see
 [Which agent](#which-agent)). Everything else is the Python in `scripts/`, which
 runs the same anywhere.
 
@@ -835,6 +837,7 @@ scripts/
   inspect_source.py             orientation and layout facts, before prompting
   plan_batch.py                 CSV rows -> per-photo captions, paths, commands
   build_prompt.py               facts + judgments -> the seal prompt
+  generate_seal.py              prompt -> seal via OpenAI's image API, for agents without image generation
   check_seal.py                 seal colours vs the photograph's real palette
   compose.py                    photo + seal + caption -> final composite
   verify.py                     the gate

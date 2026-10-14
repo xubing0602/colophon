@@ -223,8 +223,20 @@ The seal is generated **alone**,
 on its own near-white ground, with no caption and no border around the whole
 image — the script adds the caption and places the seal.
 
-**With no image-generation tool** (Claude Code without an image MCP server, for
-example): do not skip the seal, and do not draw one yourself in SVG or with a
+**With no image-generation tool of your own** (Claude Code, for example): if an
+`OPENAI_API_KEY` is available — in the environment or a `.env` in the project or
+this skill's folder — write each finished prompt to `seals/prompts/<stem>.txt`
+and run
+
+```bash
+python generate_seal.py ../seals/prompts/*.txt
+```
+
+which draws each seal through OpenAI's image API into `seals/<stem>_seal.png`,
+skipping seals that already exist. Then continue from `check_seal.py`. Never ask
+the user to paste a key into the chat; they put it in `.env` themselves.
+
+If there is no key either: do not skip the seal, and do not draw one yourself in SVG or with a
 script — a seal is the one part that has to come from an image model. Finish
 every prompt, write each to `seals/prompts/<stem>.txt`, and tell the user which
 files to generate and where to save them: `seals/<stem>_seal.png`, PNG. Wait for
