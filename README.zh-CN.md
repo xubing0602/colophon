@@ -43,11 +43,15 @@
 
 ```bash
 git clone https://github.com/xubing0602/colophon.git
-mkdir -p ~/.claude/skills && ln -s "$PWD/colophon" ~/.claude/skills/colophon   # Claude Code
 pip install -r colophon/scripts/requirements.txt
+
+# Codex
+mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills" && cp -R colophon "${CODEX_HOME:-$HOME/.codex}/skills/colophon"
+# Claude Code
+mkdir -p ~/.claude/skills && ln -s "$PWD/colophon" ~/.claude/skills/colophon
 ```
 
-Codex 用户把整个文件夹复制到 `${CODEX_HOME:-$HOME/.codex}/skills/colophon`。**文件夹必须命名为 `colophon`**，要和 `SKILL.md` 里的 `name:` 一致。
+**文件夹必须命名为 `colophon`**，要和 `SKILL.md` 里的 `name:` 一致。
 
 把照片放进 `source/`，可选地准备一个 `manifest/metadata.csv`，每个文件一行地点和日期。然后对智能体说：
 
@@ -59,7 +63,14 @@ Codex 用户把整个文件夹复制到 `${CODEX_HOME:-$HOME/.codex}/skills/colo
 用 colophon 处理 metadata.csv 第 112 到 121 行的图片。
 ```
 
-智能体需要有生成图片的能力来画印章（Codex 自带；Claude Code 里可以用你接入的任何图像生成工具或 MCP 服务）。其余都是普通的 Python：Pillow、numpy，以及读取 iPhone `.heic` 文件用的 pillow-heif。
+### 用哪个智能体
+
+- **Codex** 自己就能画印章，不用额外设置。
+- **Claude Code** 本身不能生成图片。除了画印章这一步，其余都是普通的 Python，照常运行。画印章有两种办法：
+  - **给 Claude Code 接一个图像生成的 MCP 服务**，之后用法和 Codex 一样。
+  - **自己生成印章。** Claude 把每张照片写好的提示词存到 `seals/prompts/`，你把它们逐个粘贴到 ChatGPT、Codex 或任何图像工具里，结果存成 `seals/<照片名>_seal.png`，Claude 再完成合成和检查。
+
+脚本需要 Pillow、numpy，以及读取 iPhone `.heic` 文件用的 pillow-heif。
 
 ## 目录和表格约定
 

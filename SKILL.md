@@ -223,6 +223,13 @@ The seal is generated **alone**,
 on its own near-white ground, with no caption and no border around the whole
 image — the script adds the caption and places the seal.
 
+**With no image-generation tool** (Claude Code without an image MCP server, for
+example): do not skip the seal, and do not draw one yourself in SVG or with a
+script — a seal is the one part that has to come from an image model. Finish
+every prompt, write each to `seals/prompts/<stem>.txt`, and tell the user which
+files to generate and where to save them: `seals/<stem>_seal.png`, PNG. Wait for
+them, then continue from `check_seal.py`.
+
 One call per photo. No speculative variants. For batches, finalise every prompt
 first, then run 2–3 concurrent calls. Concurrency changes scheduling only: never
 trade away model quality, prompt specificity, or source resolution for speed.
