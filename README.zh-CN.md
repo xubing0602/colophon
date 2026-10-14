@@ -39,6 +39,8 @@
 
 **按行号批量处理。** 指定地点日期表（CSV）的行号，文件名、题记和输出文件名都由脚本机械地算出来，不会处理错那十张照片。
 
+**题记可以从照片本身起草。** 还没有表格？脚本读取每张照片 EXIF 里的拍摄日期和 GPS 位置，在 OpenStreetMap 上查出城市、省/州和国家，写成一份草稿 CSV。你可以修改它、补上只有你知道的地名，或者直接用。
+
 ## 快速开始
 
 ```bash
@@ -53,7 +55,7 @@ mkdir -p ~/.claude/skills && ln -s "$PWD/colophon" ~/.claude/skills/colophon
 
 **文件夹必须命名为 `colophon`**，要和 `SKILL.md` 里的 `name:` 一致。
 
-把照片放进 `source/`，可选地准备一个 `manifest/metadata.csv`，每个文件一行地点和日期。然后对智能体说：
+把照片放进 `source/`，可选地准备一个 `manifest/metadata.csv`，每个文件一行地点和日期。没有的话，智能体会先从照片的 EXIF 起草一份，给你看过再开始制作。然后对智能体说：
 
 ```
 用 colophon 处理 source/ 里的照片。
@@ -96,6 +98,19 @@ Chaoyang Road
 Beijing, China
 MAR 2026
 ```
+
+还没有表格，可以从照片本身起草一份（在 `scripts/` 里运行）：
+
+```bash
+python update_metadata.py --root /path/to/myproject
+```
+
+它从每张照片的 EXIF 读取拍摄日期和 GPS，再到 OpenStreetMap（Nominatim）查出城市、省/州和国家。之后打开 CSV 按你的意思改。需要知道的几点：
+
+- **只填空格。** 表里已有的内容一律保留，原有行的顺序不变，所以按行号指定的批次依然有效；新照片追加在末尾。添加照片后可以再跑一次。
+- **`place`（第一行地名）默认留空**，除非加 `--suggest-place`。一个地方该怎么称呼，应该由你决定，而不是地理编码服务；它给出的建筑、公园或街道名只是一个起点。
+- **地理编码会把每张照片的坐标发给 OpenStreetMap**，每秒一次。加 `--no-geocode` 则全部在本机完成，只填日期和坐标。
+- 没有日期或 GPS 的照片会在最后列出，方便你手动补填。`--dry-run` 只显示会改什么，不写文件。
 
 几条不用再每次交代的规则：
 

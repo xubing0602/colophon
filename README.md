@@ -39,6 +39,8 @@ An agent skill for Codex and Claude Code that turns each of your photographs int
 
 **Batches by row number.** Point it at rows of a CSV of places and dates, and it resolves filenames, captions and output names mechanically, so the wrong ten photos are never processed.
 
+**Captions drafted from the photos.** No spreadsheet yet? It reads each photo's capture date and GPS position, looks up the city, region and country on OpenStreetMap, and writes a draft CSV. Correct it, add the place names only you know, or use it as it is.
+
 ## Quick start
 
 ```bash
@@ -51,7 +53,7 @@ mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills" && cp -R colophon "${CODEX_HOME:-$
 mkdir -p ~/.claude/skills && ln -s "$PWD/colophon" ~/.claude/skills/colophon
 ```
 
-Put your photos in `source/` and, optionally, a `manifest/metadata.csv` with place and date per file. Then ask your agent:
+Put your photos in `source/` and, optionally, a `manifest/metadata.csv` with place and date per file. Without one, the agent drafts it from the photos' EXIF and shows it to you before anything is made. Then ask your agent:
 
 ```
 Use colophon on the photos in source/.
@@ -180,6 +182,36 @@ IMG_4705.heic,Chaoyang Road,Beijing,Beijing,China,...,2026,3,MAR,19
 
 Only `file_name`, `place`, `city`, `country`, `month_name`, and `year` are used
 by default. Extra columns are ignored.
+
+No CSV yet? Draft one from the photos themselves:
+
+```bash
+python update_metadata.py --root /path/to/myproject
+```
+
+```
+[1/3] 0m01s elapsed, ETA 0m03s  IMG_0113.heic  (new)  Kyoto, Japan / MAR 2023
+[2/3] 0m05s elapsed, ETA 0m02s  IMG_0239.HEIC  (new)  Beijing, China / APR 2022
+[3/3] 0m09s elapsed, ETA 0m00s  IMG_0322.heic  (new)  Kyoto, Japan / MAR 2023
+done in 0m09s: 3 new row(s), 0 filled in, in /path/to/myproject/manifest/metadata.csv
+3 row(s) have no place; fill them in, or the caption starts at the city
+```
+
+It reads the capture date and GPS from each photo's EXIF, and looks the position
+up on OpenStreetMap (Nominatim) for city, state and country. Then open the CSV
+and make it yours. A few things to know:
+
+- **It only fills empty cells.** Anything already in the CSV is kept, rows keep
+  their order so batch row numbers stay valid, and new photos are appended. Run
+  it again after adding photos.
+- **`place` stays empty** unless you pass `--suggest-place`. What to call a spot
+  is your call, not a geocoder's; the suggestion (a building, park or street
+  name from OpenStreetMap) is a starting point to edit.
+- **Geocoding sends each photo's coordinates to OpenStreetMap**, one request a
+  second. `--no-geocode` keeps everything on your machine and fills only the
+  date and coordinates.
+- Photos without a date or GPS are listed at the end, so you know which rows to
+  fill by hand. `--dry-run` shows what would change without writing.
 
 ### Step 2 — Find out what layout each photo forces
 
@@ -835,6 +867,7 @@ agents/
 scripts/
   stamp_lib.py                  geometry, paper, ink
   inspect_source.py             orientation and layout facts, before prompting
+  update_metadata.py            photos' EXIF -> a draft metadata.csv to correct
   plan_batch.py                 CSV rows -> per-photo captions, paths, commands
   build_prompt.py               facts + judgments -> the seal prompt
   generate_seal.py              prompt -> seal via OpenAI's image API, for agents without image generation

@@ -55,6 +55,23 @@ not ask about them unless something contradicts what you find on disk.
 composites in `output/`. Metadata in `manifest/metadata.csv`, falling back to
 `metadata.csv` at the project root.
 
+**No metadata yet.** If there is no CSV and the user has not given captions,
+draft one from the photos before anything else:
+
+```bash
+python update_metadata.py --root <project>
+```
+
+It reads each photo's EXIF date and GPS and looks up city, state and country on
+OpenStreetMap, writing `manifest/metadata.csv`. It only fills empty cells and
+keeps existing rows in order, so it is safe to rerun after photos are added.
+`place` stays empty: show the user the draft, and ask them to correct it and name
+the places, or to say it can be used as is. You may offer place names from what
+you see in each photo, or rerun with `--suggest-place` for OpenStreetMap's names,
+but the user confirms them. Never make the captions from a draft nobody has
+looked at. If the user does not want coordinates sent to OpenStreetMap, pass
+`--no-geocode`.
+
 **Output naming.** The output basename is always identical to the source
 basename; only the extension changes, to `.webp`.
 
